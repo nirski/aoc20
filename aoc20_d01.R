@@ -1,26 +1,39 @@
 library(tidyverse)
-library(readr)
+library(aocodeR)
 
 # Data ---------------------------------------------------------------------------------------------
 
-d01_d1 <- read_table("data/d01_input.txt", col_names = c("x"))
+d01_d1 <- aoc_get_input(1, 2020, "AOC_COOKIE") %>% melt_csv() %>% pull(value) %>% as.numeric()
 
 # Part 1 -------------------------------------------------------------------------------------------
 
-d01_d1 %>%
-    mutate(y = x) %>%
-    expand(x, y) %>%
-    filter(x < y) %>%
-    mutate(sum = x + y) %>%
-    filter(sum == 2020) %>%
-    mutate(product = x * y)
+crossing(x = d01_d1, y = d01_d1) %>%
+    mutate(sum = x + y, product = x * y) %>%
+    filter(x < y, sum == 2020)
 
 # Part 2 -------------------------------------------------------------------------------------------
 
-d01_d1 %>%
-    mutate(y = x, z = x) %>%
-    expand(x, y, z) %>%
-    filter(x < y, y < z) %>%
-    mutate(sum = x + y + z) %>%
-    filter(sum == 2020) %>%
-    mutate(product = x * y * z)
+crossing(x = d01_d1, y = d01_d1, z = d01_d1) %>%
+    mutate(sum = x + y + z, product = x * y * z) %>%
+    filter(x < y, y < z, sum == 2020)
+
+# Benchmark ----------------------------------------------------------------------------------------
+
+bench::mark(
+    dplyr = crossing(x = d01_d1, y = d01_d1, z = d01_d1) %>%
+        mutate(sum = x + y + z, product = x * y * z) %>%
+        filter(x < y, y < z, sum == 2020) %>%
+        pull(product),
+    collapse = expand.grid(x = d01_d1, y = d01_d1, z = d01_d1) %>%
+        collapse::ftransform(sum = x + y + z, product = x * y * z) %>%
+        collapse::fsubset(x < y & y < z & sum == 2020) %>%
+        collapse::get_vars("product") %>% as.numeric(),
+    base = {
+        x <- d01_d1
+        for (i in x) for (j in x) for (k in x) if (i+j+k == 2020) {z <- i*j*k; break}
+        z
+    },
+    # https://twitter.com/drob/status/1333650983726034946
+    drob1 = prod(d01_d1[d01_d1 %in% (2020 - outer(d01_d1, d01_d1, "+"))]),
+    drob2 = prod(intersect(d01_d1, 2020 - outer(d01_d1, d01_d1, "+")))
+)
