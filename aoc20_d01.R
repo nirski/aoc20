@@ -19,7 +19,7 @@ crossing(x = d01_d1, y = d01_d1, z = d01_d1) %>%
 
 # Benchmark ----------------------------------------------------------------------------------------
 
-bench::mark(
+d01_b1 <- bench::mark(
     dplyr = crossing(x = d01_d1, y = d01_d1, z = d01_d1) %>%
         mutate(sum = x + y + z, product = x * y * z) %>%
         filter(x < y, y < z, sum == 2020) %>%
@@ -35,5 +35,10 @@ bench::mark(
     },
     # https://twitter.com/drob/status/1333650983726034946
     drob1 = prod(d01_d1[d01_d1 %in% (2020 - outer(d01_d1, d01_d1, "+"))]),
-    drob2 = prod(intersect(d01_d1, 2020 - outer(d01_d1, d01_d1, "+")))
+    drob2 = prod(intersect(d01_d1, 2020 - outer(d01_d1, d01_d1, "+"))),
+    # https://twitter.com/hrbrmstr/status/1333933551465754625
+    hrbmstr = Reduce(`*`, combn(d01_d1, 3)[, which(combn(d01_d1, 3, sum) == 2020)])
 )
+
+d01_b1
+plot(d01_b1)
