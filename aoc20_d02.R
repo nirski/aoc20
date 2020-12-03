@@ -6,6 +6,8 @@ library(aocodeR)
 d02_d1 <- aoc_get_input(2, 2020, "AOC_COOKIE") %>%
     read_table("input") %>%
     extract(input, c("from", "to", "char", "string"), "([0-9]+)-([0-9]+) ([a-z]): ([a-z]+)") %>%
+    # https://twitter.com/Ben_Guinaudeau/status/1334186253064019971
+    # unglue::unglue_unnest(input, "{from}-{to} {char}: {string}")
     mutate(across(from:to, as.integer))
 
 # Part 1 -------------------------------------------------------------------------------------------
