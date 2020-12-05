@@ -50,3 +50,19 @@ d04_r2 <- d04_d2 %>%
 
 d04_r2 %>% count(valid2)
 
+# Validate -----------------------------------------------------------------------------------------
+
+library(validate)
+
+v <- validator(.file = "aoc20_d04.yaml")
+
+d04_dv <- d04_d2 %>%
+    mutate(across(ends_with("yr"), as.integer)) %>%
+    extract(hgt, c("hgt_value", "hgt_unit"), "^(\\d+)([cm|in]*)$", remove = FALSE) %>%
+    mutate(hgt_value = as.integer(hgt_value))
+
+d04_cf <- confront(d04_dv, v)
+
+d04_cf
+summary(d04_cf)
+barplot(d04_cf, main = "AoC")
