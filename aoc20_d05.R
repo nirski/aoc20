@@ -15,6 +15,9 @@ d05_r1 <- d05_d1 %>%
 
 d05_r1 %>% slice_max(seat)
 
+# https://twitter.com/antoine_fabri/status/1336728528507858945
+chartr("FBLR", "0101", d05_d1$input) %>% strtoi(2) %>% max()
+
 # Part 2 -------------------------------------------------------------------------------------------
 
 d05_r1 %>% arrange(seat) %>% slice_max(seat - lag(seat))
