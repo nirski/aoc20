@@ -56,6 +56,8 @@ library(validate)
 
 v <- validator(.file = "aoc20_d04.yaml")
 
+meta(v)
+
 d04_dv <- d04_d2 %>%
     mutate(across(ends_with("yr"), as.integer)) %>%
     extract(hgt, c("hgt_value", "hgt_unit"), "^(\\d+)([cm|in]*)$", remove = FALSE) %>%
@@ -65,4 +67,29 @@ d04_cf <- confront(d04_dv, v)
 
 d04_cf
 summary(d04_cf)
+errors(d04_cf)
 barplot(d04_cf, main = "AoC")
+
+d04_cf %>% aggregate("record") %>% as_tibble() %>% tally(rel.pass == 1)
+
+# Pointblank ---------------------------------------------------------------------------------------
+
+library(pointblank)
+
+d04_d2 %>%
+    mutate(across(ends_with("yr"), as.integer)) %>%
+    extract(hgt, c("hgt_value", "hgt_unit"), "^(\\d+)([cm|in]*)$", remove = FALSE) %>%
+    mutate(hgt_value = as.integer(hgt_value)) %>%
+    mutate(hgt_cm = ifelse(hgt_unit == "in", hgt_value * 2.54, hgt_value)) %>%
+    create_agent() %>% 
+    col_vals_between(vars(byr), 1920, 2002) %>% 
+    col_vals_between(vars(iyr), 2010, 2020) %>% 
+    col_vals_between(vars(eyr), 2020, 2030) %>% 
+    col_vals_regex(vars(hcl), "^#[0-9a-f]{6}$") %>% 
+    col_vals_in_set(vars(ecl), c("amb", "blu", "brn", "gry", "grn", "hzl", "oth")) %>% 
+    col_vals_regex(vars(pid), "^[0-9]{9}$") %>% 
+    col_vals_between(vars(hgt_cm), 150, 193) %>% 
+    interrogate() -> valid_report
+
+valid_report
+valid_report %>% get_sundered_data(type = "pass")
