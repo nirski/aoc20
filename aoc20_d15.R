@@ -92,6 +92,25 @@ f2 <- function(v, s) {
 
 input %>% f2(30000000)
 
+# https://github.com/fdlk/advent-2020/blob/master/day15.md
+k2 <- function(v, s) {
+    v <- tibble(number = v)
+    game <- rep(0, s)
+    for (i in 1:(length(v$number) - 1)) {
+        number <- v$number[[i]]
+        game[number + 1] <- i
+    }
+    last_number <- last(v$number)
+    for (i in (length(v$number) + 1):s) {
+        occurred_last <- game[[last_number + 1]]
+        game[[last_number + 1]] <- i - 1
+        last_number <- if (occurred_last == 0) 0 else i - 1 - occurred_last
+    }
+    last_number
+}
+
+input %>% k2(30000000)
+
 # Benchmark ----------------------------------------------------------------------------------------
 
 d12_b1 <- bench::mark(
@@ -99,7 +118,8 @@ d12_b1 <- bench::mark(
     j2 = input %>% j2(1e5),
     g2 = input %>% g2(1e5),
     d2 = input %>% d2(1e5),
-    f2 = input %>% f2(1e5)
+    f2 = input %>% f2(1e5),
+    k2 = input %>% k2(1e5)
 )
 
 d12_b1
